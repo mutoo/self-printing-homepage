@@ -16,12 +16,13 @@ window.addEventListener('load', () => {
     meta.content = 'width=device-width, initial-scale=1.0';
     document.head.appendChild(meta);
 
-    document.body.innerHTML = `<pre class="main">loading...</pre>`;
+    let main = document.querySelector('card');
+    main.innerHTML = `<pre class="source">loading...</pre>`;
 
     fetch(window.location.href).then(data => {
         return data.text();
     }).then(body => {
-        document.body.innerHTML = `<pre class="main"></pre>`;
+        main.innerHTML = `<pre class="source"></pre>`;
 
         let handler = new htmlparser.DomHandler(function(error, dom) {
             if (error) {
@@ -29,7 +30,7 @@ window.addEventListener('load', () => {
                 return;
             }
 
-            let container = document.querySelector('.main');
+            let container = document.querySelector('.source');
             dom.forEach((d) => {
                 translate(container, d);
             });
@@ -78,6 +79,13 @@ function translate(container, dom) {
             container.appendChild(span);
             break;
 
+        case 'comment':
+            span = document.createElement('span');
+            span.classList.add('comment');
+            span.innerText = `<!--${dom.data}-->`;
+            container.appendChild(span);
+            break;
+
         case'tag':
         case 'script':
             spanL(container);
@@ -111,7 +119,6 @@ function translate(container, dom) {
             }
 
             switch (dom.name) {
-                case 'html':
                 case 'meta':
                 case'link':
                     break;
@@ -182,6 +189,8 @@ function attribute(container, key, value) {
     span.innerText = key;
     container.appendChild(span);
 
+    if (!value) return;
+
     eq(container);
     quote(container);
 
@@ -191,6 +200,7 @@ function attribute(container, key, value) {
             let a = document.createElement('a');
             a.href = value;
             a.target = '_blank';
+            a.tabIndex = -1;
             a.innerText = value;
             container.appendChild(a);
             break;
