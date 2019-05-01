@@ -5,6 +5,11 @@ import {htmlEntities} from './utils';
 import htmlparser from 'htmlparser2';
 
 window.addEventListener('load', () => {
+    let meta = document.createElement('meta');
+    meta.name = 'viewport';
+    meta.content = 'width=device-width, initial-scale=1.0';
+    document.head.appendChild(meta);
+
     document.body.innerHTML = `<pre class="main">loading...</pre>`;
 
     fetch(window.location.href).then(data => {
@@ -41,8 +46,9 @@ function translate(container, dom) {
     switch (dom.type) {
         case 'directive':
             let span = document.createElement('span');
+            span.classList.add('comment');
             span.innerText = `<${dom.data}>`;
-            container.append(span);
+            container.appendChild(span);
             break;
 
         case'tag':
@@ -50,8 +56,9 @@ function translate(container, dom) {
             spanL(container);
 
             span = document.createElement('span');
+            span.classList.add('tag');
             span.innerText = dom.name;
-            container.append(span);
+            container.appendChild(span);
 
             for (let attr in dom.attribs) {
                 space(container);
@@ -62,13 +69,14 @@ function translate(container, dom) {
 
             if (dom.name === 'a') {
                 let a = document.createElement('a');
+                a.classList.add('link');
                 a.href = dom.attribs.href;
                 a.title = dom.attribs.title;
                 a.target = dom.attribs.target;
                 dom.children.forEach((d) => {
                     translate(a, d);
                 });
-                container.append(a);
+                container.appendChild(a);
             } else {
                 dom.children.forEach((d) => {
                     translate(container, d);
@@ -81,14 +89,17 @@ function translate(container, dom) {
                 case'link':
                     break;
                 default:
+                    spanL(container);
                     span = document.createElement('span');
-                    span.innerText = `</${dom.name}>`;
-                    container.append(span);
+                    span.classList.add('tag');
+                    span.innerText = `/${dom.name}`;
+                    container.appendChild(span);
+                    spanR(container);
             }
             break;
 
         case 'text':
-            container.append(dom.data);
+            text(container, dom.data);
             break;
 
         default:
@@ -96,38 +107,50 @@ function translate(container, dom) {
     }
 }
 
+function text(container, text) {
+    let code = document.createElement('code');
+    code.innerText = text;
+    container.appendChild(code);
+}
+
 function space(container) {
-    container.append(' ');
+    let text = document.createTextNode(' ');
+    container.appendChild(text);
 }
 
 function eq(container) {
     let span = document.createElement('span');
+    span.classList.add('eq');
     span.innerText = '=';
-    container.append(span);
+    container.appendChild(span);
 }
 
 function spanL(container) {
     let span = document.createElement('span');
+    span.classList.add('angle-bracket');
     span.innerText = '<';
-    container.append(span);
+    container.appendChild(span);
 }
 
 function spanR(container) {
     let span = document.createElement('span');
+    span.classList.add('angle-bracket');
     span.innerText = '>';
-    container.append(span);
+    container.appendChild(span);
 }
 
 function quote(container) {
     let span = document.createElement('span');
+    span.classList.add('quote');
     span.innerText = '"';
-    container.append(span);
+    container.appendChild(span);
 }
 
 function attribute(container, key, value) {
     let span = document.createElement('span');
+    span.classList.add('key');
     span.innerText = key;
-    container.append(span);
+    container.appendChild(span);
 
     eq(container);
     quote(container);
@@ -137,13 +160,15 @@ function attribute(container, key, value) {
         case 'href':
             let a = document.createElement('a');
             a.href = value;
+            a.target = '_blank';
             a.innerText = value;
-            container.append(a);
+            container.appendChild(a);
             break;
         default:
             span = document.createElement('span');
+            span.classList.add('value');
             span.innerText = value;
-            container.append(span);
+            container.appendChild(span);
     }
 
     quote(container);

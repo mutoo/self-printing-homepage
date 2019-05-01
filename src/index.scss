@@ -1,3 +1,5 @@
+@import '~sass-mq';
+
 * {
     box-sizing: border-box;
 }
@@ -8,16 +10,88 @@ html {
 
 body {
     margin: 0;
-    background-color: black;
+    background-color: #060608;
     color: white;
 }
 
-$font-mono: "Source Code Pro", Monaco, Menlo, Consolas, "Courier New", Courier, monospace;
+$font-mono: "Source Code Pro", Monaco, Menlo, Consolas, "Courier New", Courier, "Hiragino Sans GB", "Microsoft YaHei", monospace;
 
 .main {
-    max-width: 80ch;
     margin: 5rem auto;
+    padding: 0 2.0rem;
+    max-width: 120ch;
+    white-space: pre-wrap;
+
+    @include mq($from: tablet) {
+        padding: 0 2.5rem;
+    }
+
+    @include mq($from: desktop) {
+        padding: 0 3.0rem;
+    }
+}
+
+pre,
+code {
     font-family: $font-mono;
     font-size: 1.4rem;
-    line-height: 1.3;
+    line-height: 1.4;
+
+    @include mq($from: tablet) {
+        line-height: 1.3;
+    }
+}
+
+span {
+    display: inline-block;
+    transition: all 0.3s ease;
+
+    &:hover {
+        position: relative;
+        z-index: 1;
+        background-color: black;
+        transform: scale(1.3);
+    }
+
+    &.comment {
+        color: #5f615d;
+    }
+
+    &.angle-bracket {
+        color: #1d671d;
+    }
+
+    &.tag {
+        color: #57ca3c;
+    }
+
+    &.key {
+        color: #c8ec83;
+    }
+
+    &.eq {
+        color: #169c72;
+    }
+
+    &.quote {
+        color: #3d5010;
+    }
+
+    &.value {
+        color: #f5a076;
+    }
+}
+
+a {
+    display: inline-block;
+    color: white;
+    transition: all 0.3s ease;
+
+    &:hover {
+        position: relative;
+        z-index: 1;
+        background-color: white;
+        color: black;
+        transform: scale(1.5);
+    }
 }
