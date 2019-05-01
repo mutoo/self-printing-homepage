@@ -1,7 +1,9 @@
-import './index.scss';
 import 'whatwg-fetch';
 import 'es6-promise/auto';
-import htmlparser from 'htmlparser2';
+import parser from './parser';
+
+// import global styles
+import './index.scss';
 
 const links = {
     linkedin: 'https://www.linkedin.com/in/mutoo/',
@@ -17,42 +19,38 @@ window.addEventListener('load', () => {
     document.head.appendChild(meta);
 
     let main = document.querySelector('card');
-    main.innerHTML = `<pre class="source">loading...</pre>`;
+    main.removeAttribute('cloak');
+    let container = document.createElement('pre');
+    container.classList.add('source');
+    container.innerText = `loading...`;
+    main.innerHTML = '';
+    main.appendChild(container);
 
     fetch(window.location.href).then(data => {
+        // convert to text
         return data.text();
+
     }).then(body => {
-        main.innerHTML = `<pre class="source"></pre>`;
+        // parse text to simple dom tree
+        return parser(body);
 
-        let handler = new htmlparser.DomHandler(function(error, dom) {
-            if (error) {
-                console.error(error);
-                return;
-            }
+    }).then(dom => {
+        // clear and make the source container
+        container.innerHTML = '';
 
-            let container = document.querySelector('.source');
-            dom.forEach((d) => {
-                translate(container, d);
-            });
-
-            let codes = container.querySelectorAll('code');
-            codes.forEach((code) => {
-                code.innerHTML = code.innerText.replace(/(\w+): (.+)/g, (_, site, username) => {
-                    let link = links[site.toLowerCase()];
-                    return `${site}: <a href="${link}" target="_blank">${username}</a>`;
-                });
-            });
-        }, {
-            withStartIndices: true,
-            withEndIndices: true,
+        dom.forEach((d) => {
+            translate(container, d);
         });
 
-        let parser = new htmlparser.Parser(handler, {
-            decodeEntities: true,
-            recognizeSelfClosing: true,
+        let codes = container.querySelectorAll('code');
+        codes.forEach((code) => {
+            code.innerHTML = code.innerText.replace(/(\w+): (.+)/g, (_, site, username) => {
+                let link = links[site.toLowerCase()];
+                return `${site}: <a href="${link}" target="_blank">${username}</a>`;
+            });
         });
-        parser.write(body);
-        parser.end();
+    }, (err) => {
+        main.innerText = err;
     });
 });
 
