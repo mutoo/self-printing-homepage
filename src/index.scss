@@ -11,13 +11,15 @@ html {
 body {
     margin: 0;
     background-color: #060608;
+    background-image: linear-gradient(45deg, #131319 0%, black 100%);
+    background-attachment: fixed;
     color: white;
 }
 
 $font-mono: "Source Code Pro", Monaco, Menlo, Consolas, "Courier New", Courier, "Hiragino Sans GB", "Microsoft YaHei", monospace;
 
 .main {
-    margin: 5rem auto;
+    margin: 3rem auto;
     padding: 0 2.0rem;
     max-width: 120ch;
     white-space: pre-wrap;
@@ -27,6 +29,7 @@ $font-mono: "Source Code Pro", Monaco, Menlo, Consolas, "Courier New", Courier, 
     }
 
     @include mq($from: desktop) {
+        margin: 5rem auto;
         padding: 0 3.0rem;
     }
 }
@@ -45,6 +48,7 @@ code {
 span {
     display: inline-block;
     transition: all 0.3s ease;
+    cursor: default;
 
     &:hover {
         position: relative;

@@ -1,8 +1,14 @@
 import './index.scss';
 import 'whatwg-fetch';
 import 'es6-promise/auto';
-import {htmlEntities} from './utils';
 import htmlparser from 'htmlparser2';
+
+const links = {
+    linkedin: 'https://www.linkedin.com/in/mutoo/',
+    github: 'https://github.com/mutoo/',
+    codepen: 'https://codepen.io/mutoo/',
+    twitter: 'https://twitter.com/tmutoo/',
+};
 
 window.addEventListener('load', () => {
     let meta = document.createElement('meta');
@@ -15,7 +21,6 @@ window.addEventListener('load', () => {
     fetch(window.location.href).then(data => {
         return data.text();
     }).then(body => {
-        // simple output plain text
         document.body.innerHTML = `<pre class="main"></pre>`;
 
         let handler = new htmlparser.DomHandler(function(error, dom) {
@@ -27,6 +32,14 @@ window.addEventListener('load', () => {
             let container = document.querySelector('.main');
             dom.forEach((d) => {
                 translate(container, d);
+            });
+
+            let codes = container.querySelectorAll('code');
+            codes.forEach((code) => {
+                code.innerHTML = code.innerText.replace(/(\w+): (.+)/g, (_, site, username) => {
+                    let link = links[site.toLowerCase()];
+                    return `${site}: <a href="${link}" target="_blank">${username}</a>`;
+                });
             });
         }, {
             withStartIndices: true,
@@ -89,12 +102,15 @@ function translate(container, dom) {
                 case'link':
                     break;
                 default:
-                    spanL(container);
+                    let group = document.createElement('span');
+                    group.classList.add('no-break');
+                    spanL(group);
                     span = document.createElement('span');
                     span.classList.add('tag');
                     span.innerText = `/${dom.name}`;
-                    container.appendChild(span);
-                    spanR(container);
+                    group.appendChild(span);
+                    spanR(group);
+                    container.appendChild(group);
             }
             break;
 
