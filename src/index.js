@@ -1,9 +1,8 @@
 import 'whatwg-fetch';
 import 'es6-promise/auto';
-import parser from './parser';
-
-// import global styles
+import './gtm';
 import './index.scss';
+import parser from './parser';
 
 const links = {
     linkedin: 'https://www.linkedin.com/in/mutoo/',
@@ -42,6 +41,8 @@ window.addEventListener('load', () => {
             translate(container, d);
         });
 
+        // find plain text like twitter: @mutoo
+        // and add link to the usernames
         let codes = container.querySelectorAll('code');
         codes.forEach((code) => {
             code.innerHTML = code.innerText.replace(/(\w+): (.+)/g, (_, site, username) => {
@@ -53,20 +54,6 @@ window.addEventListener('load', () => {
         main.innerText = err;
     });
 });
-
-// Google Tag Manager
-(function(w, d, s, l, i) {
-    w[l] = w[l] || [];
-    w[l].push({
-        'gtm.start':
-            new Date().getTime(), event: 'gtm.js',
-    });
-    let f = d.getElementsByTagName(s)[0],
-        j = d.createElement(s), dl = l != 'dataLayer' ? '&l=' + l : '';
-    j.async = true;
-    j.src = 'https://www.googletagmanager.com/gtm.js?id=' + i + dl;
-    f.parentNode.insertBefore(j, f);
-})(window, document, 'script', 'dataLayer', 'GTM-MZWF9KM');
 
 function translate(container, dom) {
     switch (dom.type) {
@@ -86,6 +73,7 @@ function translate(container, dom) {
 
         case'tag':
         case 'script':
+        case 'style':
             spanL(container);
 
             span = document.createElement('span');
@@ -142,6 +130,7 @@ function translate(container, dom) {
     }
 }
 
+// TODO: refactor these function with ramdajs
 function text(container, text) {
     let code = document.createElement('code');
     code.innerText = text;
