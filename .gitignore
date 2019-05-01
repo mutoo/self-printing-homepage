@@ -1,1 +1,35 @@
+# General
+.vagrant
+*~
+offline_content
+*.log
+*.map
+
+# Node.js / Grunt
+node_modules
+bower_components
+.grunt
+*.map
+.sass-cache
+
+# OS X
+.DS_Store
+*.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# IntelliJ
 .idea
+
+# SublimeText
+*.tmlanguage.cache
+*.tmPreferences.cache
+*.stTheme.cache
+*.sublime-workspace
+*.sublime-project

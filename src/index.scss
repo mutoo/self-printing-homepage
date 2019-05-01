@@ -1,0 +1,23 @@
+* {
+    box-sizing: border-box;
+}
+
+html {
+    font-size: 62.5%;
+}
+
+body {
+    margin: 0;
+    background-color: black;
+    color: white;
+}
+
+$font-mono: "Source Code Pro", Monaco, Menlo, Consolas, "Courier New", Courier, monospace;
+
+.main {
+    max-width: 80ch;
+    margin: 5rem auto;
+    font-family: $font-mono;
+    font-size: 1.4rem;
+    line-height: 1.3;
+}
