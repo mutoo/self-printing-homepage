@@ -83,9 +83,9 @@ function translate(container, dom) {
             if (dom.name === 'a') {
                 let a = document.createElement('a');
                 a.classList.add('link');
-                a.href = dom.attribs.href;
-                a.title = dom.attribs.title;
-                a.target = dom.attribs.target;
+                for (let attr in dom.attribs) {
+                    a[attr] = dom.attribs[attr];
+                }
                 dom.children.forEach((d) => {
                     translate(a, d);
                 });
