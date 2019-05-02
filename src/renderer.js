@@ -1,50 +1,44 @@
+import {curry, map, compose} from 'ramda';
+
 export default function renderer(container, dom) {
+    if (dom instanceof Array) {
+        dom.forEach((d) => {
+            renderer(container, d);
+        });
+        return;
+    }
+
+    let append = appendTo(container);
     switch (dom.type) {
         case 'directive':
-            let span = document.createElement('span');
-            span.classList.add('comment');
-            span.innerText = `<${dom.data}>`;
-            container.appendChild(span);
+            append(comment(`<${dom.data}>`));
             break;
 
         case 'comment':
-            span = document.createElement('span');
-            span.classList.add('comment');
-            span.innerText = `<!--${dom.data}-->`;
-            container.appendChild(span);
+            append(comment(`<!--${dom.data}-->`));
             break;
 
         case'tag':
         case 'script':
         case 'style':
-            spanL(container);
-
-            span = document.createElement('span');
-            span.classList.add('tag');
-            span.innerText = dom.name;
-            container.appendChild(span);
+            append(lt());
+            append(tag(dom.name));
 
             for (let attr in dom.attribs) {
-                space(container);
-                attribute(container, attr, dom.attribs[attr]);
+                if (dom.attribs.hasOwnProperty(attr)) {
+                    append(space());
+                    map(append)(attribute(attr, dom.attribs[attr]));
+                }
             }
 
-            spanR(container);
+            append(gt());
 
             if (dom.name === 'a') {
-                let a = document.createElement('a');
-                a.classList.add('link');
-                for (let attr in dom.attribs) {
-                    a[attr] = dom.attribs[attr];
-                }
-                dom.children.forEach((d) => {
-                    renderer(a, d);
-                });
-                container.appendChild(a);
+                let a = compose(setAttributes(dom.attribs), addClass('link'), node)('a');
+                renderer(a, dom.children);
+                append(a);
             } else {
-                dom.children.forEach((d) => {
-                    renderer(container, d);
-                });
+                renderer(container, dom.children);
             }
 
             switch (dom.name) {
@@ -52,94 +46,98 @@ export default function renderer(container, dom) {
                 case'link':
                     break;
                 default:
-                    let group = document.createElement('span');
-                    group.classList.add('no-break');
-                    spanL(group);
-                    span = document.createElement('span');
-                    span.classList.add('tag');
-                    span.innerText = `/${dom.name}`;
-                    group.appendChild(span);
-                    spanR(group);
-                    container.appendChild(group);
+                    let group = spanWithClass('no-break')('');
+                    append(group);
+                    map(appendTo(group))([
+                        lt(),
+                        slash(),
+                        tag(dom.name),
+                        gt(),
+                    ]);
             }
             break;
 
         case 'text':
-            text(container, dom.data);
+            append(code(dom.data));
             break;
 
         default:
-            console.warn('unrecognized dom', dom);
+            throw new Error(`unrecognized dom: ${dom}`);
     }
 }
 
-// TODO: refactor these function with ramdajs
-function text(container, text) {
-    let code = document.createElement('code');
-    code.innerText = text;
-    container.appendChild(code);
-}
+let node = (tag) => document.createElement(tag);
+let textNode = (text) => document.createTextNode(text);
 
-function space(container) {
-    let text = document.createTextNode(' ');
-    container.appendChild(text);
-}
+let addClass = curry((className, node) => {
+    node.classList.add(className);
+    return node;
+});
 
-function eq(container) {
-    let span = document.createElement('span');
-    span.classList.add('eq');
-    span.innerText = '=';
-    container.appendChild(span);
-}
+let setText = curry((text, node) => {
+    node.innerText = text;
+    return node;
+});
 
-function spanL(container) {
-    let span = document.createElement('span');
-    span.classList.add('angle-bracket');
-    span.innerText = '<';
-    container.appendChild(span);
-}
+let setAttribute = curry((attr, value, node) => {
+    node.setAttribute(attr, value);
+    return node;
+});
 
-function spanR(container) {
-    let span = document.createElement('span');
-    span.classList.add('angle-bracket');
-    span.innerText = '>';
-    container.appendChild(span);
-}
+let setAttributes = curry((attrs, node) => {
+    for (let attr in attrs) {
+        if (attrs.hasOwnProperty(attr)) {
+            node[attr] = attrs[attr];
+        }
+    }
+    return node;
+});
 
-function quote(container) {
-    let span = document.createElement('span');
-    span.classList.add('quote');
-    span.innerText = '"';
-    container.appendChild(span);
-}
+let appendTo = curry((container, node) => {
+    container.appendChild(node);
+    return node;
+});
 
-function attribute(container, key, value) {
-    let span = document.createElement('span');
-    span.classList.add('key');
-    span.innerText = key;
-    container.appendChild(span);
+let code = (code) => compose(setText(code), node)('code');
+let spanWithClass = curry((className, text) => {
+    return compose(setText(text), addClass(className), node)('span');
+});
 
-    if (!value) return;
+let lt = () => spanWithClass('angle-bracket')('<');
+let gt = () => spanWithClass('angle-bracket')('>');
+let slash = () => spanWithClass('angle-bracket')('/');
+let eq = () => spanWithClass('eq')('=');
+let quote = () => spanWithClass('quote')('"');
+let space = () => textNode(' ');
 
-    eq(container);
-    quote(container);
+let comment = spanWithClass('comment');
+let tag = spanWithClass('tag');
+let key = spanWithClass('key');
+let value = spanWithClass('value');
 
-    switch (key) {
+let attribute = (k, v) => {
+    let nodes = [];
+    nodes.push(key(k));
+
+    if (!v) return nodes;
+
+    nodes.push(eq());
+    nodes.push(quote());
+
+    switch (k) {
         case 'src':
         case 'href':
-            let a = document.createElement('a');
-            a.href = value;
-            a.target = '_blank';
-            a.tabIndex = -1;
-            a.innerText = value;
-            container.appendChild(a);
+            nodes.push(compose(
+                setAttribute('href', v),
+                setAttribute('target', '_blank'),
+                setAttribute('tabIndex', '-1'),
+                setText(v),
+                node)('a'));
             break;
         default:
-            span = document.createElement('span');
-            span.classList.add('value');
-            span.innerText = value;
-            container.appendChild(span);
+            nodes.push(value(v));
     }
 
-    quote(container);
-}
+    nodes.push(quote());
+    return nodes;
+};

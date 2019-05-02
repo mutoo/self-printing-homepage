@@ -44,9 +44,7 @@ window.addEventListener('load', () => {
     }).then(dom => {
         // clear and rendered the dom
         container.innerHTML = '';
-        dom.forEach((d) => {
-            renderer(container, d);
-        });
+        renderer(container, dom);
     }).then(() => {
         // find plain text like twitter: @mutoo
         // and add link to the usernames
