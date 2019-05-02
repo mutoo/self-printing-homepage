@@ -16,6 +16,7 @@ export default function parser(
     parserOptions = {
         decodeEntities: true,
         recognizeSelfClosing: true,
+        lowerCaseAttributeNames: false,
     }) {
     return new Promise((resolve, reject) => {
         let handler = new htmlparser.DomHandler(function(error, dom) {
