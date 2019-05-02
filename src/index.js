@@ -5,13 +5,6 @@ import './index.scss';
 import parser from './parser';
 import renderer from './renderer';
 
-const links = {
-    linkedin: 'https://www.linkedin.com/in/mutoo/',
-    github: 'https://github.com/mutoo/',
-    codepen: 'https://codepen.io/mutoo/',
-    twitter: 'https://twitter.com/tmutoo/',
-};
-
 window.addEventListener('load', () => {
     // viewport patch for mobile
     let meta = document.createElement('meta');
@@ -44,8 +37,17 @@ window.addEventListener('load', () => {
     }).then(dom => {
         // clear and rendered the dom
         container.innerHTML = '';
-        renderer(container, dom);
+        return renderer(container, dom);
+
     }).then(() => {
+        // social links map
+        const links = {
+            linkedin: 'https://www.linkedin.com/in/mutoo/',
+            github: 'https://github.com/mutoo/',
+            codepen: 'https://codepen.io/mutoo/',
+            twitter: 'https://twitter.com/tmutoo/',
+        };
+
         // find plain text like twitter: @mutoo
         // and add link to the usernames
         let codes = container.querySelectorAll('code');
@@ -55,6 +57,14 @@ window.addEventListener('load', () => {
                 return `${site}: <a href="${link}" title="${site}" target="_blank">${username}</a>`;
             });
         });
+
+    }).then(() => {
+        // add a caret to entry link
+        let entry = document.querySelector('[tabindex="0"]');
+        let caret = document.createElement('span');
+        caret.classList.add('caret');
+        entry.appendChild(caret);
+
     }, (err) => {
         container.innerText = err;
     });

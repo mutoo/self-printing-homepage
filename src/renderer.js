@@ -1,69 +1,77 @@
-import {curry, map, compose} from 'ramda';
+import {curry, map, compose, flatten} from 'ramda';
 
 export default function renderer(container, dom) {
-    if (dom instanceof Array) {
-        dom.forEach((d) => {
-            renderer(container, d);
-        });
-        return;
-    }
+    return new Promise((resolve, reject) => {
+        if (dom instanceof Array) {
+            Promise.all(dom.map((d) => {
+                return renderer(container, d);
+            })).then(resolve, reject);
+            return;
+        }
 
-    let append = appendTo(container);
-    switch (dom.type) {
-        case 'directive':
-            append(comment(`<${dom.data}>`));
-            break;
+        let append = appendTo(container);
+        switch (dom.type) {
+            case 'directive':
+                append(comment(`<${dom.data}>`));
+                break;
 
-        case 'comment':
-            append(comment(`<!--${dom.data}-->`));
-            break;
+            case 'comment':
+                append(comment(`<!--${dom.data}-->`));
+                break;
 
-        case'tag':
-        case 'script':
-        case 'style':
-            append(lt());
-            append(tag(dom.name));
+            case 'tag':
+            case 'script':
+            case 'style':
 
-            for (let attr in dom.attribs) {
-                if (dom.attribs.hasOwnProperty(attr)) {
-                    append(space());
-                    map(append)(attribute(attr, dom.attribs[attr]));
+                // <tag
+                append(lt());
+                append(tag(dom.name));
+
+                // key1="value1" key2="value2"
+                for (let attr in dom.attribs) {
+                    if (dom.attribs.hasOwnProperty(attr)) {
+                        map(append)(flatten([space(), attribute(attr, dom.attribs[attr])]));
+                    }
                 }
-            }
 
-            append(gt());
+                // >
+                append(gt());
 
-            if (dom.name === 'a') {
-                let a = compose(setAttributes(dom.attribs), addClass('link'), node)('a');
-                renderer(a, dom.children);
-                append(a);
-            } else {
-                renderer(container, dom.children);
-            }
+                // make children in the a-tag clickable
+                if (dom.name === 'a') {
+                    let a = compose(append, setAttributes(dom.attribs), addClass('link'), node)('a');
+                    renderer(a, dom.children);
 
-            switch (dom.name) {
-                case 'meta':
-                case'link':
-                    break;
-                default:
-                    let group = spanWithClass('no-break')('');
-                    append(group);
-                    map(appendTo(group))([
-                        lt(),
-                        slash(),
-                        tag(dom.name),
-                        gt(),
-                    ]);
-            }
-            break;
+                } else {
 
-        case 'text':
-            append(code(dom.data));
-            break;
+                    // render the children recursively
+                    renderer(container, dom.children);
+                }
 
-        default:
-            throw new Error(`unrecognized dom: ${dom}`);
-    }
+                switch (dom.name) {
+                    case 'meta':
+                    case'link':
+                        // some special tags don't need to be closed
+                        break;
+
+                    default:
+                        // make the </tag> a group
+                        let group = compose(append, spanWithClass('no-break'))('');
+                        map(appendTo(group))([lt(), slash(), tag(dom.name), gt()]);
+                }
+                break;
+
+            case 'text':
+                // put the text in the code-tag so the line-breaks and spaces are took into account
+                append(code(dom.data));
+                break;
+
+            default:
+                reject(`unrecognized dom: ${dom}`);
+        }
+
+        resolve(container);
+    });
 }
 
 let node = (tag) => document.createElement(tag);
@@ -134,6 +142,7 @@ let attribute = (k, v) => {
                 setText(v),
                 node)('a'));
             break;
+
         default:
             nodes.push(value(v));
     }
