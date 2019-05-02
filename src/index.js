@@ -54,7 +54,7 @@ window.addEventListener('load', () => {
         codes.forEach((code) => {
             code.innerHTML = code.innerText.replace(/(\w+): (.+)/g, (_, site, username) => {
                 let link = links[site.toLowerCase()];
-                return `${site}: <a href="${link}" title="${site}" target="_blank">${username}</a>`;
+                return `${site}: <a class="link" href="${link}" title="${site}" target="_blank">${username}</a>`;
             });
         });
 
@@ -64,6 +64,12 @@ window.addEventListener('load', () => {
         let caret = document.createElement('span');
         caret.classList.add('caret');
         entry.appendChild(caret);
+
+    }).then(() => {
+        // add fork me on github
+        let github = document.createElement('div');
+        github.innerHTML = `<a href="https://github.com/mutoo/self-printing-homepage" target="_blank"><img width="149" height="149" src="https://github.blog/wp-content/uploads/2008/12/forkme_right_green_007200.png?resize=149%2C149" alt="Fork me on GitHub" style="position: absolute; top: 0; right: 0; border: 0;"></a>`;
+        document.body.appendChild(github);
 
     }, (err) => {
         container.innerText = err;

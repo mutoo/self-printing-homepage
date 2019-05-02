@@ -140,6 +140,7 @@ let attribute = (k, v) => {
                 setAttribute('target', '_blank'),
                 setAttribute('tabIndex', '-1'),
                 setText(v),
+                addClass('link'),
                 node)('a'));
             break;
 
