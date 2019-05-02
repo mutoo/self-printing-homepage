@@ -33,3 +33,5 @@ Desktop.ini
 *.stTheme.cache
 *.sublime-workspace
 *.sublime-project
+
+stats.json
