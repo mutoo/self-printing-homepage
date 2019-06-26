@@ -1,4 +1,4 @@
 [submodule "dist"]
 	path = dist
-	url = https://github.com/mutoo/self-printing-homepage.git
-	branch = gh-pages
+	url = https://github.com/mutoo/mutoo.github.io.git
+
