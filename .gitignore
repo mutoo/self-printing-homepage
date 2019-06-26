@@ -35,3 +35,6 @@ Desktop.ini
 *.sublime-project
 
 stats.json
+
+# Dist
+dist
