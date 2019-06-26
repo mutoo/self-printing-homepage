@@ -2,6 +2,7 @@ import path from 'path';
 import merge from 'webpack-merge';
 import MiniCssExtractPlugin from 'mini-css-extract-plugin';
 
+import html from './parts/html';
 import scss from './parts/scss';
 import javascript from './parts/javascript';
 
@@ -28,4 +29,5 @@ export default merge([
     },
     javascript(),
     scss(),
+    html(),
 ]);

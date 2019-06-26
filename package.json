@@ -15,6 +15,7 @@
     "cross-env": "^5.2.0",
     "css-loader": "^2.1.1",
     "es6-promise": "^4.2.6",
+    "file-loader": "^4.0.0",
     "htmlparser2": "^3.10.1",
     "mini-css-extract-plugin": "^0.6.0",
     "node-sass": "^4.12.0",

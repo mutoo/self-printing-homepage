@@ -2,6 +2,7 @@ import 'whatwg-fetch';
 import 'es6-promise/auto';
 import './gtm';
 import './index.scss';
+import './index.html';
 import parser from './parser';
 import renderer from './renderer';
 
