@@ -1,4 +1,4 @@
-import {curry, map, compose, flatten} from 'ramda';
+import {map, compose, flatten} from 'ramda';
 import {
     addClass,
     appendTo,
@@ -16,7 +16,7 @@ import {
 } from './helper';
 
 /**
- *
+ * Renderer a parsed dom tree into the container dom
  * @param container - To keep the rendered output
  * @param dom - The dom tree
  */
