@@ -38,7 +38,7 @@ window.addEventListener('load', () => {
     }).then(dom => {
         // clear and rendered the dom
         container.innerHTML = '';
-        return renderer(container, dom);
+        renderer(container, dom);
 
     }).then(() => {
         // social links map
