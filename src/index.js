@@ -1,5 +1,6 @@
 import 'whatwg-fetch';
 import 'es6-promise/auto';
+import './adsense';
 import './gtm';
 import './index.scss';
 import './index.html';
