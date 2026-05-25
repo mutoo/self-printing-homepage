@@ -1,37 +1,19 @@
 {
-  "name": "mutoo.im",
-  "version": "1.0.0",
-  "description": "Lingjia's homepage",
-  "main": "index.js",
-  "repository": "https://github.com/mutoo/homepage.git",
-  "author": "Lingjia <gmutoo@gmail.com>",
+  "name": "self-printing-homepage",
+  "private": true,
+  "version": "1.1.0",
   "license": "MIT",
-  "devDependencies": {
-    "@babel/core": "^7.4.4",
-    "@babel/preset-env": "^7.4.4",
-    "@babel/register": "^7.4.4",
-    "autoprefixer": "^9.5.1",
-    "babel-loader": "^8.0.5",
-    "cross-env": "^5.2.0",
-    "css-loader": "^2.1.1",
-    "es6-promise": "^4.2.6",
-    "file-loader": "^4.0.0",
-    "htmlparser2": "^3.10.1",
-    "mini-css-extract-plugin": "^0.6.0",
-    "node-sass": "^4.12.0",
-    "postcss-loader": "^3.0.0",
-    "ramda": "^0.26.1",
-    "sass-loader": "^7.1.0",
-    "sass-mq": "^5.0.0",
-    "style-loader": "^0.23.1",
-    "webpack": "^4.30.0",
-    "webpack-cli": "^3.3.1",
-    "webpack-dev-server": "^3.3.1",
-    "webpack-merge": "^4.2.1",
-    "whatwg-fetch": "^3.0.0"
-  },
+  "type": "module",
   "scripts": {
-    "dev": "cross-env NODE_ENV=development webpack-dev-server --config build/webpack.config.babel.js --env development --hot --inline",
-    "build": "cross-env NODE_ENV=production webpack --config build/webpack.config.babel.js --env production --json > stats.json"
+    "dev": "npm run build && vite public --host 127.0.0.1",
+    "typecheck": "tsc --noEmit",
+    "bundle": "esbuild src/main.ts --bundle --format=esm --target=es2022 --outdir=public --entry-names=main --loader:.html=text",
+    "build": "npm run typecheck && npm run bundle",
+    "preview": "npm run build && vite preview --outDir public --host 127.0.0.1"
+  },
+  "devDependencies": {
+    "esbuild": "^0.28.0",
+    "typescript": "^5.8.3",
+    "vite": "^6.3.5"
   }
 }

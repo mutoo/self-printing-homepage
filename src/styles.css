@@ -1,0 +1,124 @@
+:root {
+  color-scheme: dark;
+  font-family:
+    "Jetbrains Mono", "Source Code Pro", Monaco, Menlo, Consolas, "Courier New",
+    Courier, "Hiragino Sans GB", "Microsoft YaHei", monospace;
+  background: #060608;
+  color: white;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  --text: white;
+  --comment: #5f615d;
+  --bracket: #1d671d;
+  --tag: #57ca3c;
+  --attr: #c8ec83;
+  --value: #f5a076;
+  --line-accent: white;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  min-width: 320px;
+  min-height: 100vh;
+  margin: 0;
+  background-color: #060608;
+  background-image: linear-gradient(45deg, #131319 0%, black 100%);
+  background-attachment: fixed;
+}
+
+a {
+  color: inherit;
+}
+
+#app {
+  min-height: 100vh;
+}
+
+.source-page {
+  min-height: 100vh;
+  overflow: auto;
+  padding: clamp(2rem, 5vw, 5rem);
+}
+
+.source-code {
+  width: max-content;
+  min-width: min(100%, 120ch);
+  margin: 0;
+  color: var(--text);
+  font: 400 14px / 1.4 "Jetbrains Mono", "Source Code Pro", Monaco, Menlo, Consolas,
+    "Courier New", Courier, "Hiragino Sans GB", "Microsoft YaHei", monospace;
+  letter-spacing: 0.01rem;
+  tab-size: 2;
+  white-space: pre;
+}
+
+.code-link {
+  display: inline-block;
+  border-radius: 3px;
+  color: white;
+  text-decoration: none;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.22em;
+  transition:
+    color 300ms ease,
+    background-color 160ms ease,
+    transform 300ms ease;
+}
+
+.code-link:hover,
+.code-link:focus-visible {
+  outline: none;
+  background-color: white;
+  color: black;
+  transform: scale(1.05);
+}
+
+.syntax-comment {
+  color: var(--comment);
+}
+
+.syntax-bracket {
+  color: var(--bracket);
+}
+
+.syntax-tag {
+  color: var(--tag);
+}
+
+.syntax-attr {
+  color: var(--attr);
+}
+
+.syntax-value {
+  color: var(--value);
+}
+
+@media (max-width: 640px) {
+  .source-page {
+    padding: 1.25rem 1rem;
+  }
+
+  .source-code {
+    width: 100%;
+    min-width: 0;
+    font-size: 12px;
+    line-height: 1.55;
+    overflow-wrap: anywhere;
+    white-space: pre-wrap;
+  }
+
+  .code-link {
+    display: inline;
+    border-radius: 2px;
+  }
+
+  .code-link:hover,
+  .code-link:focus-visible {
+    transform: none;
+  }
+
+}
