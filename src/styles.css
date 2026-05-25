@@ -38,6 +38,16 @@ a {
   min-height: 100vh;
 }
 
+@media (scripting: enabled) {
+  body[data-cloak] {
+    background: #060608;
+  }
+
+  body[data-cloak] > * {
+    display: none;
+  }
+}
+
 .source-page {
   min-height: 100vh;
   overflow: auto;
@@ -54,6 +64,24 @@ a {
   letter-spacing: 0.01rem;
   tab-size: 2;
   white-space: pre;
+}
+
+.code-line {
+  display: inline-block;
+  max-width: 100%;
+  overflow-wrap: inherit;
+  white-space: inherit;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .code-line {
+    animation: stream-line 520ms cubic-bezier(0.22, 1, 0.36, 1) both;
+    animation-delay: calc(var(--line-index) * 42ms);
+    clip-path: inset(0 100% 0 0);
+    opacity: 0;
+    transform: translateY(0.35rem);
+    will-change: clip-path, opacity, transform;
+  }
 }
 
 .code-link {
@@ -95,6 +123,14 @@ a {
 
 .syntax-value {
   color: var(--value);
+}
+
+@keyframes stream-line {
+  to {
+    clip-path: inset(0 0 0 0);
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @media (max-width: 640px) {

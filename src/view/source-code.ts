@@ -1,4 +1,4 @@
-import { appendWhen, join, map, mapIndexed, pipe } from "../lib/fp";
+import { appendWhen, join, mapIndexed, pipe } from "../lib/fp";
 import { sourceLineFromText } from "../source/source-line";
 import { visibleLines } from "../source/lines";
 import type { SourceLine, SourceSegment } from "../types";
@@ -28,8 +28,9 @@ const renderSegment = (segment: SourceSegment): string =>
 /**
  * Renders one source line as a stable row while preserving segment boundaries.
  */
-const renderLine = ({ segments }: SourceLine): string =>
-  `<span class="code-line">${segments.map(renderSegment).join("")}</span>`;
+const renderLine = ({ segments }: SourceLine, index: number): string =>
+  `<span class="code-line" style="--line-index: ${index}">` +
+  `${segments.map(renderSegment).join("")}</span>`;
 
 /**
  * Converts an entire source file into highlighted, clickable code markup.
@@ -45,7 +46,7 @@ export const renderSource = (source: string): string =>
     source,
     visibleLines,
     mapIndexed(sourceLineFromText),
-    map(renderLine),
+    mapIndexed(renderLine),
     join("\n"),
     appendWhen(source.endsWith("\n"), "\n")
   );

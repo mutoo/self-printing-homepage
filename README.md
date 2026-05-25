@@ -2,8 +2,8 @@
 
 A small personal homepage that renders itself as readable HTML source code.
 
-The browser loads `public/index.html`, then the compiled TypeScript reads that same
-HTML file as text, highlights it, masks each visible `href` as `href="..."`, and
+The browser loads `public/index.html`, then the compiled TypeScript fetches that
+same page as text, highlights it, masks each visible `href` as `href="..."`, and
 turns only the displayed `<a ...>...</a>` fragments into real links.
 
 ![Self-printing homepage screenshot](./docs/screenshot.png)
@@ -12,9 +12,10 @@ turns only the displayed `<a ...>...</a>` fragments into real links.
 
 - Self-printing homepage: the page displays its own `public/index.html` source.
 - TypeScript implementation with a functional transformation pipeline.
-- Isolated side effect: DOM mounting happens only in `src/effects.ts`.
+- Isolated browser side effects: page-source fetching and DOM mounting happen in `src/effects.ts`.
 - Syntax highlighting for comments, doctype, tag brackets, tag names, attributes, and values.
 - Links open in a new tab at runtime, while the visible source keeps `href="..."`.
+- Streamed line reveal after the runtime source fetch completes.
 - Responsive mobile layout with wrapped source code instead of horizontal clipping.
 - Static output in `public/`: `index.html`, `main.js`, and `main.css`.
 
@@ -27,8 +28,8 @@ public/
   main.js         Generated JavaScript bundle
 
 src/
-  main.ts         App entry, imports public/index.html as text
-  effects.ts      DOM side-effect boundary
+  main.ts         App entry, fetches the current page source and mounts it
+  effects.ts      Browser side-effect boundary
   view/           Source-code rendering
   source/         Line parsing, highlighting, and link extraction
   lib/            Small FP and HTML helpers
@@ -70,9 +71,9 @@ npm run typecheck
 npm run bundle
 ```
 
-`src/main.ts` imports `../public/index.html` as text through esbuild's HTML text
-loader. The output is written directly to `public/main.js` and `public/main.css`,
-so `public/index.html` can stay a plain static entry point.
+`src/main.ts` fetches the current page source at runtime, so the build only needs
+to bundle TypeScript and CSS. The output is written directly to `public/main.js`
+and `public/main.css`, while `public/index.html` stays a plain static entry point.
 
 ## License
 

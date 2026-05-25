@@ -1,43 +1,35 @@
-// public/index.html
-var public_default = `<!DOCTYPE html>
-<html lang="zh">
-  <head>
-    <meta charset="utf-8" />
-    <title>Lingjia's Homepage</title>
-    <meta name="author" content="Lingjia" />
-    <meta name="description" content="A geek, web developer, game programmer" />
-    <meta name="keywords" content="web, game, programming, blog" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" href="/main.css" />
-  </head>
-  <body>
-    <div id="app" aria-label="Lingjia's Homepage">
-      <!-- find me here -->
-      <a href="https://blog.mutoo.im" title="\u70B9\u51FB\u8FDB\u5165\u6728\u5323\u5B50">\u6728\u5323\u5B50</a>
-
-      <!-- find me there -->
-      <ul class="socials">
-        <li>LinkedIn: <a href="https://www.linkedin.com/in/mutoo/">/in/mutoo</a></li>
-        <li>Twitter: <a href="https://twitter.com/tmutoo/">/tmutoo</a></li>
-        <li>CodePen: <a href="https://codepen.io/mutoo/">/mutoo</a></li>
-        <li>GitHub: <a href="https://github.com/mutoo/">/mutoo</a></li>
-      </ul>
-
-      <!-- to be continued -->
-      <footer>\xA9 2010-2026</footer>
-    </div>
-    <script type="module" src="/main.js"><\/script>
-  </body>
-</html>
-`;
-
 // src/effects.ts
-var mountApp = (mountId, markup) => {
+var currentPageSourceUrl = () => {
+  const url = new URL(window.location.href);
+  url.hash = "";
+  return url.href;
+};
+var fetchCurrentPageSource = async () => {
+  const response = await fetch(currentPageSourceUrl());
+  if (!response.ok) {
+    throw new Error(
+      `Failed to fetch current page source: ${response.status} ${response.statusText}`
+    );
+  }
+  return response.text();
+};
+var revealBody = () => {
+  document.body.removeAttribute("data-cloak");
+};
+var appElement = (mountId) => {
   const mount = document.getElementById(mountId);
   if (!mount) {
     throw new Error(`Missing mount element: #${mountId}`);
   }
+  return mount;
+};
+var revealPage = () => {
+  revealBody();
+};
+var mountApp = (mountId, markup) => {
+  const mount = appElement(mountId);
   mount.innerHTML = markup;
+  revealBody();
 };
 
 // src/lib/html.ts
@@ -187,12 +179,12 @@ var linkAttributes = ({ href, label, accent }) => [
 var renderLinkedSegment = (segment) => `<a class="code-link" ${linkAttributes(segment.link)}>${segment.html}</a>`;
 var renderPlainSegment = ({ html }) => html;
 var renderSegment = (segment) => segment.link ? renderLinkedSegment({ ...segment, link: segment.link }) : renderPlainSegment(segment);
-var renderLine = ({ segments }) => `<span class="code-line">${segments.map(renderSegment).join("")}</span>`;
+var renderLine = ({ segments }, index) => `<span class="code-line" style="--line-index: ${index}">${segments.map(renderSegment).join("")}</span>`;
 var renderSource = (source) => pipe(
   source,
   visibleLines,
   mapIndexed(sourceLineFromText),
-  map(renderLine),
+  mapIndexed(renderLine),
   join("\n"),
   appendWhen(source.endsWith("\n"), "\n")
 );
@@ -205,8 +197,16 @@ var renderHomepage = ({ filename, source }) => `
 `;
 
 // src/main.ts
-var app = renderHomepage({
-  filename: "index.html",
-  source: public_default
+var appId = "app";
+var main = async () => {
+  const source = await fetchCurrentPageSource();
+  const app = renderHomepage({
+    filename: "index.html",
+    source
+  });
+  mountApp(appId, app);
+};
+void main().catch((error) => {
+  console.error(error);
+  revealPage();
 });
-mountApp("app", app);
