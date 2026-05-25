@@ -4,6 +4,34 @@ var currentPageSourceUrl = () => {
   url.hash = "";
   return url.href;
 };
+var googleTagManagerUrl = (containerId) => {
+  const url = new URL("https://www.googletagmanager.com/gtm.js");
+  url.searchParams.set("id", containerId);
+  return url.href;
+};
+var hasGoogleTagManagerScript = (containerId) => Array.from(document.scripts).some((script) => script.dataset.gtmId === containerId);
+var pushGoogleTagManagerStart = () => {
+  const gtmWindow = window;
+  const dataLayer = gtmWindow.dataLayer ?? [];
+  dataLayer.push({
+    "gtm.start": Date.now(),
+    event: "gtm.js"
+  });
+  gtmWindow.dataLayer = dataLayer;
+};
+var mountGoogleTagManager = (containerId) => {
+  const normalizedContainerId = containerId.trim();
+  if (!normalizedContainerId || hasGoogleTagManagerScript(normalizedContainerId)) {
+    return;
+  }
+  pushGoogleTagManagerStart();
+  const script = document.createElement("script");
+  script.async = true;
+  script.dataset.gtmId = normalizedContainerId;
+  script.src = googleTagManagerUrl(normalizedContainerId);
+  const firstScript = document.getElementsByTagName("script")[0];
+  firstScript?.parentNode ? firstScript.parentNode.insertBefore(script, firstScript) : document.head.appendChild(script);
+};
 var fetchCurrentPageSource = async () => {
   const response = await fetch(currentPageSourceUrl());
   if (!response.ok) {
@@ -31,6 +59,10 @@ var mountApp = (mountId, markup) => {
   mount.innerHTML = markup;
   revealBody();
 };
+
+// src/env.ts
+var envGtmContainerId = "";
+var gtmContainerId = typeof envGtmContainerId === "string" ? envGtmContainerId.trim() : "";
 
 // src/lib/html.ts
 var escapeHtml = (value) => value.replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;").replaceAll("'", "&#039;");
@@ -198,6 +230,7 @@ var renderHomepage = ({ filename, source }) => `
 
 // src/main.ts
 var appId = "app";
+mountGoogleTagManager(gtmContainerId);
 var main = async () => {
   const source = await fetchCurrentPageSource();
   const app = renderHomepage({

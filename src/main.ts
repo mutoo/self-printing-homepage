@@ -1,8 +1,16 @@
 import "./styles.css";
-import { fetchCurrentPageSource, mountApp, revealPage } from "./effects";
+import {
+  fetchCurrentPageSource,
+  mountApp,
+  mountGoogleTagManager,
+  revealPage
+} from "./effects";
+import { gtmContainerId } from "./env";
 import { renderHomepage } from "./view";
 
 const appId = "app";
+
+mountGoogleTagManager(gtmContainerId);
 
 const main = async (): Promise<void> => {
   // Step 1: fetch the current page source at runtime.

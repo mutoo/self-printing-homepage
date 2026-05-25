@@ -11,6 +11,52 @@ const currentPageSourceUrl = (): string => {
   return url.href;
 };
 
+type GoogleTagManagerWindow = Window & {
+  dataLayer?: Array<Record<string, unknown>>;
+};
+
+const googleTagManagerUrl = (containerId: string): string => {
+  const url = new URL("https://www.googletagmanager.com/gtm.js");
+  url.searchParams.set("id", containerId);
+
+  return url.href;
+};
+
+const hasGoogleTagManagerScript = (containerId: string): boolean =>
+  Array.from(document.scripts).some((script) => script.dataset.gtmId === containerId);
+
+const pushGoogleTagManagerStart = (): void => {
+  const gtmWindow = window as unknown as GoogleTagManagerWindow;
+  const dataLayer = gtmWindow.dataLayer ?? [];
+
+  dataLayer.push({
+    "gtm.start": Date.now(),
+    event: "gtm.js"
+  });
+
+  gtmWindow.dataLayer = dataLayer;
+};
+
+export const mountGoogleTagManager = (containerId: string): void => {
+  const normalizedContainerId = containerId.trim();
+
+  if (!normalizedContainerId || hasGoogleTagManagerScript(normalizedContainerId)) {
+    return;
+  }
+
+  pushGoogleTagManagerStart();
+
+  const script = document.createElement("script");
+  script.async = true;
+  script.dataset.gtmId = normalizedContainerId;
+  script.src = googleTagManagerUrl(normalizedContainerId);
+
+  const firstScript = document.getElementsByTagName("script")[0];
+  firstScript?.parentNode
+    ? firstScript.parentNode.insertBefore(script, firstScript)
+    : document.head.appendChild(script);
+};
+
 export const fetchCurrentPageSource = async (): Promise<string> => {
   const response = await fetch(currentPageSourceUrl());
 

@@ -16,6 +16,7 @@ turns only the displayed `<a ...>...</a>` fragments into real links.
 - Syntax highlighting for comments, doctype, tag brackets, tag names, attributes, and values.
 - Links open in a new tab at runtime, while the visible source keeps `href="..."`.
 - Streamed line reveal after the runtime source fetch completes.
+- Optional Google Tag Manager loading through `VITE_GTM_ID`.
 - Responsive mobile layout with wrapped source code instead of horizontal clipping.
 - Static output in `public/`: `index.html`, `main.js`, and `main.css`.
 
@@ -56,6 +57,12 @@ Build the static assets:
 npm run build
 ```
 
+Enable Google Tag Manager by setting the public container ID before building:
+
+```sh
+VITE_GTM_ID=GTM-XXXXXXX npm run build
+```
+
 Preview the built site:
 
 ```sh
@@ -71,9 +78,11 @@ npm run typecheck
 npm run bundle
 ```
 
-`src/main.ts` fetches the current page source at runtime, so the build only needs
-to bundle TypeScript and CSS. The output is written directly to `public/main.js`
-and `public/main.css`, while `public/index.html` stays a plain static entry point.
+`scripts/bundle.mjs` reads environment variables and injects `VITE_GTM_ID` into
+the esbuild bundle. `src/main.ts` fetches the current page source at runtime, so
+the build only needs to bundle TypeScript and CSS. The output is written directly
+to `public/main.js` and `public/main.css`, while `public/index.html` stays a plain
+static entry point.
 
 ## License
 
