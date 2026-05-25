@@ -1,8 +1,9 @@
 import { highlightHtml } from "./highlight";
 import { anchorsFromLine } from "./links";
+import { escapeHtml } from "../lib/html";
 import type { SourceAnchor, SourceLine, SourceSegment } from "../types";
 
-const hrefDisplayPattern = /\bhref=(["'])(.*?)\1/;
+const hrefSourceAttributePattern = /(\s*)\bhref=(["'])(.*?)\2/;
 
 /**
  * Builds a non-clickable segment from raw source text.
@@ -15,21 +16,39 @@ const plainSegment = (source: string): SourceSegment => ({
 
 /**
  * Builds a clickable segment from an anchor range.
- * The real href remains in `link`, while the visible source masks the URL as
- * `href="..."` so implementation details stay hidden in the link behavior.
+ * The real href remains in `link`, while the visible source wraps the href
+ * attribute so small screens can hide just that noisy substring.
  */
 const anchorSegment = ({ source, link }: SourceAnchor): SourceSegment => ({
-  html: highlightHtml(displayAnchorHrefAsPlaceholder(source)),
+  html: highlightAnchorSource(source),
   link
 });
 
+const renderHighlightedHrefAttribute = (
+  [, whitespace, quote, value]: RegExpMatchArray
+): string =>
+  `${escapeHtml(whitespace)}` +
+  `<span class="syntax syntax-attr">href</span>=` +
+  `<span class="syntax syntax-value">${escapeHtml(`${quote}${value}${quote}`)}</span>`;
+
 /**
- * Replaces the displayed href value inside an anchor with an ellipsis.
- * The quote character is preserved so single-quoted and double-quoted source
- * both keep their original style.
+ * Keeps the desktop source exact, but marks the href attribute as a display
+ * unit. CSS can then remove it on mobile without changing link behavior.
  */
-const displayAnchorHrefAsPlaceholder = (source: string): string =>
-  source.replace(hrefDisplayPattern, (_match, quote: string) => `href=${quote}...${quote}`);
+const highlightAnchorSource = (source: string): string => {
+  const match = source.match(hrefSourceAttributePattern);
+
+  if (!match) {
+    return highlightHtml(source);
+  }
+
+  const highlightedHref = renderHighlightedHrefAttribute(match);
+
+  return highlightHtml(source).replace(
+    highlightedHref,
+    `<span class="source-href">${highlightedHref}</span>`
+  );
+};
 
 /**
  * Emits a segment only when the source slice has visible length.

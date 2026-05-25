@@ -15,6 +15,8 @@
   --attr: #c8ec83;
   --value: #f5a076;
   --line-accent: white;
+  --line-gutter: #4a4c49;
+  --line-hover: rgb(255 255 255 / 7%);
 }
 
 * {
@@ -61,16 +63,38 @@ a {
   color: var(--text);
   font: 400 14px / 1.4 "Jetbrains Mono", "Source Code Pro", Monaco, Menlo, Consolas,
     "Courier New", Courier, "Hiragino Sans GB", "Microsoft YaHei", monospace;
-  letter-spacing: 0.01rem;
+  letter-spacing: 0;
   tab-size: 2;
   white-space: pre;
 }
 
 .code-line {
-  display: inline-block;
+  display: inline-grid;
+  grid-template-columns: 3ch max-content;
+  column-gap: 2ch;
+  align-items: baseline;
   max-width: 100%;
   overflow-wrap: inherit;
+  padding: 0.04rem 0.55rem 0.04rem 0;
+  border-radius: 4px;
+  transition: background-color 160ms ease;
   white-space: inherit;
+}
+
+.line-number {
+  color: var(--line-gutter);
+  text-align: right;
+  user-select: none;
+}
+
+.line-source {
+  min-width: 0;
+  white-space: inherit;
+}
+
+.code-line:hover,
+.code-line:focus-within {
+  background-color: var(--line-hover);
 }
 
 @media (prefers-reduced-motion: no-preference) {
@@ -82,10 +106,17 @@ a {
     transform: translateY(0.35rem);
     will-change: clip-path, opacity, transform;
   }
+
+  .code-link::before {
+    animation: scan-link 760ms cubic-bezier(0.22, 1, 0.36, 1);
+    animation-delay: calc((var(--line-index) * 42ms) + 50ms);
+  }
 }
 
 .code-link {
   display: inline-block;
+  position: relative;
+  isolation: isolate;
   border-radius: 3px;
   color: white;
   text-decoration: none;
@@ -95,6 +126,16 @@ a {
     color 300ms ease,
     background-color 160ms ease,
     transform 300ms ease;
+}
+
+.code-link::before {
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  border-radius: inherit;
+  content: "";
+  opacity: 0;
+  pointer-events: none;
 }
 
 .code-link:hover,
@@ -133,6 +174,29 @@ a {
   }
 }
 
+@keyframes scan-link {
+  0%,
+  35% {
+    background-color: white;
+    box-shadow: 0 0 0 0 transparent;
+    opacity: 0;
+  }
+
+  55% {
+    background-color: white;
+    box-shadow:
+      0 0 0 1px white,
+      0 0 1.4rem white;
+    opacity: 1;
+  }
+
+  100% {
+    background-color: white;
+    box-shadow: 0 0 0 0 transparent;
+    opacity: 0;
+  }
+}
+
 @media (max-width: 640px) {
   .source-page {
     padding: 1.25rem 1rem;
@@ -147,9 +211,19 @@ a {
     white-space: pre-wrap;
   }
 
+  .code-line {
+    grid-template-columns: 2.5ch minmax(0, 1fr);
+    width: 100%;
+    padding-right: 0.35rem;
+  }
+
   .code-link {
     display: inline;
     border-radius: 2px;
+  }
+
+  .source-href {
+    display: none;
   }
 
   .code-link:hover,

@@ -168,15 +168,26 @@ var anchorsFromLine = (source, lineIndex) => {
 };
 
 // src/source/source-line.ts
-var hrefDisplayPattern = /\bhref=(["'])(.*?)\1/;
+var hrefSourceAttributePattern = /(\s*)\bhref=(["'])(.*?)\2/;
 var plainSegment = (source) => ({
   html: highlightHtml(source)
 });
 var anchorSegment = ({ source, link }) => ({
-  html: highlightHtml(displayAnchorHrefAsPlaceholder(source)),
+  html: highlightAnchorSource(source),
   link
 });
-var displayAnchorHrefAsPlaceholder = (source) => source.replace(hrefDisplayPattern, (_match, quote) => `href=${quote}...${quote}`);
+var renderHighlightedHrefAttribute = ([, whitespace, quote, value]) => `${escapeHtml(whitespace)}<span class="syntax syntax-attr">href</span>=<span class="syntax syntax-value">${escapeHtml(`${quote}${value}${quote}`)}</span>`;
+var highlightAnchorSource = (source) => {
+  const match = source.match(hrefSourceAttributePattern);
+  if (!match) {
+    return highlightHtml(source);
+  }
+  const highlightedHref = renderHighlightedHrefAttribute(match);
+  return highlightHtml(source).replace(
+    highlightedHref,
+    `<span class="source-href">${highlightedHref}</span>`
+  );
+};
 var segmentWhenPresent = (source) => source.length === 0 ? [] : [plainSegment(source)];
 var segmentsFromAnchors = (line, anchors) => {
   const [anchor, ...rest] = anchors;
@@ -211,7 +222,7 @@ var linkAttributes = ({ href, label, accent }) => [
 var renderLinkedSegment = (segment) => `<a class="code-link" ${linkAttributes(segment.link)}>${segment.html}</a>`;
 var renderPlainSegment = ({ html }) => html;
 var renderSegment = (segment) => segment.link ? renderLinkedSegment({ ...segment, link: segment.link }) : renderPlainSegment(segment);
-var renderLine = ({ segments }, index) => `<span class="code-line" style="--line-index: ${index}">${segments.map(renderSegment).join("")}</span>`;
+var renderLine = ({ segments }, index) => `<span class="code-line" style="--line-index: ${index}"><span class="line-number" aria-hidden="true">${index + 1}</span><span class="line-source">${segments.map(renderSegment).join("")}</span></span>`;
 var renderSource = (source) => pipe(
   source,
   visibleLines,

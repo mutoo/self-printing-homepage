@@ -30,7 +30,8 @@ const renderSegment = (segment: SourceSegment): string =>
  */
 const renderLine = ({ segments }: SourceLine, index: number): string =>
   `<span class="code-line" style="--line-index: ${index}">` +
-  `${segments.map(renderSegment).join("")}</span>`;
+  `<span class="line-number" aria-hidden="true">${index + 1}</span>` +
+  `<span class="line-source">${segments.map(renderSegment).join("")}</span></span>`;
 
 /**
  * Converts an entire source file into highlighted, clickable code markup.
