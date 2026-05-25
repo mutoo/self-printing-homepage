@@ -1,4 +1,4 @@
-# self-printing-homepage
+# Self-printing homepage
 
 A small personal homepage that renders itself as readable HTML source code.
 
