@@ -12,8 +12,8 @@
     "preview": "npm run build && vite preview --outDir public --host 127.0.0.1"
   },
   "devDependencies": {
-    "esbuild": "^0.28.0",
+    "esbuild": "^0.28.1",
     "typescript": "^5.8.3",
-    "vite": "^6.3.5"
+    "vite": "^8.0.16"
   }
 }
